@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -10,6 +10,7 @@ import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
 
 export default function TodoList() {
+    // State management for tasks and form inputs
     const [tasks, setTasks] = useState([]);
     const [input, setInput] = useState('');
     const [price, setPrice] = useState('');
@@ -17,6 +18,7 @@ export default function TodoList() {
     const [bookingRequired, setBookingRequired] = useState(false);
     const [accessibility, setAccessibility] = useState(0.5);
 
+    // Load tasks from localStorage on mount
     useEffect(() => {
         const savedTasks = localStorage.getItem('tasks');
         if (savedTasks) {
@@ -24,28 +26,37 @@ export default function TodoList() {
         }
     }, []);
 
+    // Persist tasks to localStorage when tasks change
     useEffect(() => {
         localStorage.setItem('tasks', JSON.stringify(tasks));
     }, [tasks]);
 
-    const addTask = () => {
+    // Function to add a new task, wrapped in useCallback to prevent unnecessary re-renders
+    const addTask = useCallback(() => {
         if (input.trim() === '' || price.trim() === '') return;
-        setTasks([...tasks, { id: Date.now(), text: input, price, type, bookingRequired, accessibility }]);
+        setTasks((prevTasks) => [
+            ...prevTasks,
+            { id: Date.now(), text: input, price, type, bookingRequired, accessibility },
+        ]);
         setInput('');
         setPrice('');
         setType('education');
         setBookingRequired(false);
         setAccessibility(0.5);
-    };
+    }, [input, price, type, bookingRequired, accessibility]);
 
-    const removeTask = (id) => {
-        setTasks(tasks.filter((task) => task.id !== id));
-    };
+    // Function to remove a task by ID
+    const removeTask = useCallback((id) => {
+        setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id));
+    }, []);
+
+    // Memoize task count for performance optimization
+    const taskCount = useMemo(() => tasks.length, [tasks]);
 
     return (
         <div className="max-w-md mx-auto p-4">
             <h1 className="text-2xl font-bold mb-4">To-Do List</h1>
-            <h2 className="text-lg font-semibold mb-2">Total Items: {tasks.length}</h2>
+            <h2 className="text-lg font-semibold mb-2">Total Items: {taskCount}</h2>
             <div className="flex flex-col gap-4 mb-4">
                 <Input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Activity" />
                 <Input type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="Price" />
