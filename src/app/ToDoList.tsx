@@ -34,6 +34,7 @@ export default function TodoList() {
     return (
         <div className="max-w-md mx-auto p-4">
             <h1 className="text-2xl font-bold mb-4">To-Do List</h1>
+            <h2 className="text-lg font-semibold mb-2">Total Items: {tasks.length}</h2>
             <div className="flex flex-col gap-4 mb-4">
                 <Input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Activity" />
                 <Input type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="Price" />
